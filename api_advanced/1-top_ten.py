@@ -1,33 +1,21 @@
-#!/usr/bin/python3
-"""Module for querying Reddit API"""
 import requests
 
-
 def top_ten(subreddit):
-    """Queries the Reddit API and prints titles of first 10 hot posts
-    for a given subreddit.
-
-    Args:
-        subreddit: name of the subreddit to query
     """
-    url = 'https://www.reddit.com/r/{}/hot/.json'.format(subreddit)
-    headers = {'User-Agent': 'Custom/0.0.1'}
-    params = {'limit': 10}
-
-    response = requests.get(url, headers=headers, params=params,
-                          allow_redirects=False)
-
-    if response.status_code == 200:
-        print("OK")
-    else:
-        print("None")
-        return
-
-    results = response.json().get('data', {}).get('children', [])
-
-    if not results:
-        print("None")
-        return
-
-    for post in results:
-        print(post.get('data', {}).get('title'))
+    Queries the Reddit API and prints the titles of the first 10 hot posts listed for a given subreddit.
+    If not a valid subreddit, print None.
+    """
+    url = f"https://www.reddit.com/r/{subreddit}/hot.json?limit=10"
+    headers = {'User-Agent': 'Mozilla/5.0'}
+    
+    try:
+        response = requests.get(url, headers=headers, allow_redirects=False)
+        if response.status_code == 200:
+            data = response.json()
+            posts = data['data']['children']
+            for post in posts:
+                print(post['data']['title'])
+        else:
+            print(None)
+    except Exception as e:
+        print(None)
