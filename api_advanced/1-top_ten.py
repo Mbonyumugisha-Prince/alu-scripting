@@ -1,52 +1,39 @@
 #!/usr/bin/python3
-"""Module to query Reddit API and get top 10 hot posts of a subreddit"""
+"""
+Function that queries the Reddit API and prints the titles
+of the first 10 hot posts listed for a given subreddit.
+"""
+import json
 import requests
+import sys
 
 
 def top_ten(subreddit):
-    """Queries the Reddit API and prints the titles of the first 10 hot posts
-    listed for a given subreddit.
-
+    """Get the top ten hot posts of a subreddit
     Args:
-        subreddit (str): The subreddit to search.
-
+        subreddit: the subreddit to search
     Returns:
-        None. Prints either the titles or None if subreddit is invalid.
+        None if subreddit is invalid, otherwise prints the titles
     """
-    # Reddit API endpoint for hot posts
-    url = f"https://www.reddit.com/r/{subreddit}/hot.json"
+    # Set custom User-Agent to avoid rate limiting
+    headers = {'User-Agent': 'MyAPI/0.0.1'}
     
-    # Custom User-Agent to avoid Too Many Requests error
-    headers = {
-        'User-Agent': 'linux:reddit_top_ten:v1.0.0 (by /u/your_username)'
-    }
-    
-    # Parameters to limit number of posts and prevent redirect
-    params = {
-        'limit': 10,
-        'allow_redirects': False
-    }
+    # Reddit API URL
+    url = f'https://www.reddit.com/r/{subreddit}/hot.json?limit=10'
     
     try:
-        # Make GET request to Reddit API
-        response = requests.get(url, headers=headers, params=params)
+        # Make request and set allow_redirects to False
+        response = requests.get(url, headers=headers, allow_redirects=False)
         
-        # Check if subreddit exists
-        if response.status_code == 404:
-            print(None)
-            return
-        # Check if we got a successful response
+        # Check if response is successful and not a redirect
         if response.status_code != 200:
             print(None)
             return
             
-        # Parse response JSON
-        data = response.json()
-        
-        # Extract and print post titles
-        posts = data['data']['children']
-        for post in posts:
-            print(post['data']['title'])
+        # Parse response and print titles
+        data = response.json().get('data', {}).get('children', [])
+        for post in data:
+            print(post.get('data', {}).get('title'))
             
     except Exception:
         print(None)
